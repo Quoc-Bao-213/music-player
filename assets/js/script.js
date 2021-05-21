@@ -115,3 +115,25 @@ progressArea.addEventListener('click', (e) => {
     mainAudio.currentTime = (clickedOffSetX / progressWidthval) * songDuration;
     playMusic();
 });
+
+// Let's work on repeat, shuffle song according to the icon
+const repeatBtn = wrapper.querySelector('#repeat-plist');
+
+repeatBtn.addEventListener('click', () => {
+    let getText = repeatBtn.innerText; // Get innerText of icon
+    
+    switch (getText) {
+        case 'repeat':
+            repeatBtn.innerText = 'repeat_one';
+            repeatBtn.setAttribute('title', 'Song looped');
+            break;
+        case 'repeat_one':
+            repeatBtn.innerText = 'shuffle';
+            repeatBtn.setAttribute('title', 'Playback shuffle');
+            break;
+        case 'shuffle':
+            repeatBtn.innerText = 'repeat';
+            repeatBtn.setAttribute('title', 'Playlist looped');
+            break;
+    }
+});
