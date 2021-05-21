@@ -8,7 +8,11 @@ const wrapper = document.querySelector('.wrapper'),
     prevBtn = wrapper.querySelector('#prev'),
     nextBtn = wrapper.querySelector('#next'),
     progressArea = wrapper.querySelector('.progress-area'),
-    progressBar = wrapper.querySelector('.progress-bar');
+    progressBar = wrapper.querySelector('.progress-bar'),
+    repeatBtn = wrapper.querySelector('#repeat-plist'),
+    musicList = wrapper.querySelector('.music-list'),
+    showMoreBtn = wrapper.querySelector('#more-music'),
+    hideMusicBtn = musicList.querySelector('#close');
 
 let musicIndex = 1;
 
@@ -21,7 +25,7 @@ function loadMusic(indexNumb) {
     musicName.innerText = allMusic[indexNumb - 1].name;
     musicArtist.innerText = allMusic[indexNumb - 1].artist;
     musicImg.src = `../assets/images/${allMusic[indexNumb - 1].img}`;
-    mainAudio.src = `../assets/songs/${allMusic[indexNumb - 1].src}`;
+    mainAudio.src = `../assets/songs/${allMusic[indexNumb - 1].src}.mp3`;
 };
 
 // Play music function
@@ -117,11 +121,9 @@ progressArea.addEventListener('click', (e) => {
 });
 
 // Let's work on repeat, shuffle song according to the icon
-const repeatBtn = wrapper.querySelector('#repeat-plist');
-
 repeatBtn.addEventListener('click', () => {
     let getText = repeatBtn.innerText; // Get innerText of icon
-    
+
     switch (getText) {
         case 'repeat':
             repeatBtn.innerText = 'repeat_one';
@@ -137,3 +139,67 @@ repeatBtn.addEventListener('click', () => {
             break;
     }
 });
+
+// After song ended
+mainAudio.addEventListener('ended', () => {
+    let getText = repeatBtn.innerText; // Get innerText of icon
+
+    switch (getText) {
+        case 'repeat':
+            nextMusic();
+            break;
+        case 'repeat_one':
+            mainAudio.currentTime = 0;
+            loadMusic(musicIndex);
+            playMusic();
+            break;
+        case 'shuffle':
+            let randIndex = Math.floor((Math.random() * allMusic.length) + 1);
+
+            do {
+                randIndex = Math.floor((Math.random() * allMusic.length) + 1);
+            } while (musicIndex == randIndex);
+
+            musicIndex = randIndex;
+            loadMusic(musicIndex);
+            playMusic();
+            break;
+    }
+});
+
+showMoreBtn.addEventListener('click', () => {
+    musicList.classList.toggle('show');
+});
+
+hideMusicBtn.addEventListener('click', () => {
+    showMoreBtn.click();
+});
+
+const ulTag = wrapper.querySelector('ul');
+
+for (let i = 0; i < allMusic.length; i++) {
+    let liTag = `<li>
+        <div class="row">
+            <span>${allMusic[i].name}</span>
+            <p>${allMusic[i].artist}</p>
+        </div>
+        <audio class="${allMusic[i].src}" src="./assets/songs/${allMusic[i].src}.mp3"></audio>
+        <span id="${allMusic[i].src}" class="audio-duration"></span>
+    </li>`;
+    ulTag.insertAdjacentHTML('beforeend', liTag);
+
+    let liAudioTagDuration = ulTag.querySelector(`#${allMusic[i].src}`);
+    let liAudioTag = ulTag.querySelector(`.${allMusic[i].src}`);
+
+    liAudioTag.addEventListener('loadeddata', () => {
+        let audioDuration = liAudioTag.duration;
+        let totalMin = Math.floor(audioDuration / 60);
+        let totalSec = Math.floor(audioDuration % 60);
+
+        if (totalSec < 10) {
+            totalSec = `0${totalSec}`;
+        }
+
+        liAudioTagDuration.innerText = `${totalMin}:${totalSec}`;
+    });
+}
